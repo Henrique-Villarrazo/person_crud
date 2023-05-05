@@ -1,54 +1,55 @@
 package br.com.villa.person.controller;
 
-import br.com.villa.person.dto.PersonDto;
+import br.com.villa.person.dto.PersonDTO;
+import br.com.villa.person.model.Person;
 import br.com.villa.person.service.PersonService;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Controller
+@RestController
 @RequestMapping("/persons")
 public class PersonController {
+
     private final PersonService personService;
 
+    @Autowired
     public PersonController(PersonService personService) {
         this.personService = personService;
     }
 
     @GetMapping
-    public ModelAndView listPersons() {
-        List<PersonDto> persons = personService.getAllPersons();
-        ModelAndView modelAndView = new ModelAndView("persons");
-        modelAndView.addObject("persons", persons);
-        return modelAndView;
+    public List<PersonDTO> findAllPerson() {
+        return personService.listAllPerson();
     }
 
     @GetMapping("/{id}")
-    public ModelAndView showPerson(@PathVariable UUID id) {
-        PersonDto person = personService.getPersonById(id);
-        ModelAndView modelAndView = new ModelAndView("person");
-        modelAndView.addObject("person", person);
-        return modelAndView;
+    public ResponseEntity<PersonDTO> findById(@PathVariable UUID id) {
+        Person person = personService.listPersonById(id);
+        return ResponseEntity.ok(new PersonDTO(person.getId(), person.getName(), person.getCpf(), person.getRg(), person.getEmail(), person.getAdress()));
     }
 
-
     @PostMapping
-    public String createPerson(@ModelAttribute("person") PersonDto personDto) {
-        personService.createPerson(personDto);
-        return "redirect:/persons";
+    public ResponseEntity<PersonDTO> create(@RequestBody PersonDTO personDTO) {
+        Person person = personService.createPerson(personDTO);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(person.getId()).toUri();
+        return ResponseEntity.created(location).body(new PersonDTO(person.getId(), person.getName(), person.getCpf(), person.getRg(), person.getEmail(), person.getAdress()));
     }
 
     @PutMapping("/{id}")
-    public String updatePerson(@PathVariable UUID id, @ModelAttribute("person") PersonDto personDto) {
-        personService.updatePerson(id, personDto);
-        return "redirect:/persons";
+    public ResponseEntity<PersonDTO> update(@PathVariable UUID id, @RequestBody PersonDTO personDTO) {
+        Person person = personService.updatePerson(id, personDTO);
+        return ResponseEntity.ok(new PersonDTO(person.getId(), person.getName(), person.getCpf(), person.getRg(), person.getEmail(), person.getAdress()));
     }
 
-    @DeleteMapping("/{id}/delete")
-    public String deletePerson(@PathVariable UUID id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<PersonDTO> delete(@PathVariable UUID id) {
         personService.deletePerson(id);
-        return "redirect:/persons";
+        return ResponseEntity.noContent().build();
     }
+
 }

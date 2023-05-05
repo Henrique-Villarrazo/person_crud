@@ -1,6 +1,7 @@
 package br.com.villa.person.dto;
 
 
+import br.com.villa.person.model.Adress;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.Email;
@@ -8,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public record PersonDto(
+public record PersonDTO(
         UUID id,
 
         @NotBlank
@@ -26,4 +27,4 @@ public record PersonDto(
         String email,
 
         @NotNull
-        List<AdressDto> adressDto)  { }
+        Adress adress)  { }

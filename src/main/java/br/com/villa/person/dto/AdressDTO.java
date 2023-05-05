@@ -5,7 +5,7 @@ import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-public record AdressDto(
+public record AdressDTO(
         UUID id,
         @NotBlank
         String street,

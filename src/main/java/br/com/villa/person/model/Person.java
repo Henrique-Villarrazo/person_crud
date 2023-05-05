@@ -1,5 +1,6 @@
 package br.com.villa.person.model;
 
+import br.com.villa.person.dto.PersonDTO;
 import java.util.UUID;
 import javax.persistence.*;
 
@@ -31,7 +32,7 @@ public class Person {
         this.adress = adress;
     }
 
-    public Person() {}
+    public Person(PersonDTO personDTO) {}
 
     public UUID getId() {
         return id;
@@ -115,7 +116,20 @@ public class Person {
         }
 
         public Person build() {
-            Person person = new Person();
+            PersonDTO personDTO = new PersonDTO(id, name, cpf, rg, email, adress);
+            Person person = new Person(personDTO);
+            return person;
+        }
+
+/*
+        public Person build() {
+            Person person = new Person(new PersonDTO(
+                    person.getId(),
+                    person.getName(),
+                    person.getCpf(),
+                    person.getRg(),
+                    person.getEmail(),
+                    person.getAdress()));
             person.setId(id);
             person.setName(name);
             person.setCpf(cpf);
@@ -124,5 +138,6 @@ public class Person {
             person.setAdress(adress);
             return person;
         }
+  */
     }
 }
