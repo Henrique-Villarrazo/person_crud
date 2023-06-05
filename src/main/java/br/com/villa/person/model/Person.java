@@ -1,6 +1,9 @@
 package br.com.villa.person.model;
 
 import br.com.villa.person.dto.PersonDTO;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.util.List;
 import java.util.UUID;
 import javax.persistence.*;
 
@@ -8,9 +11,12 @@ import javax.persistence.*;
 @Table(name = "person")
 public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "person_id")
-    private UUID id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private  UUID id;
 
     private String name;
 
@@ -21,18 +27,22 @@ public class Person {
     private String email;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-    private Adress adress;
+    private List<Address> address;
 
-    public Person(UUID id, String name, String cpf, String rg, String email, Adress adress) {
+    public Person(UUID id, String name, String cpf, String rg, String email, Address address) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.rg = rg;
         this.email = email;
-        this.adress = adress;
+        this.address = (List<Address>) address;
     }
 
     public Person(PersonDTO personDTO) {}
+
+    public Person() {
+
+    }
 
     public UUID getId() {
         return id;
@@ -54,10 +64,10 @@ public class Person {
         return email;
     }
 
-    public Adress getAdress() {return (Adress) adress;}
+    public Address getAdress() {return (Address) address;}
 
-    public void setAdress(Adress adress) {
-        this.adress = adress;
+    public void setAdress(Address address) {
+        this.address = (List<Address>) address;
     }
 
     public void setId(UUID id) {
@@ -86,7 +96,7 @@ public class Person {
         private String cpf;
         private String rg;
         private String email;
-        private Adress adress;
+        private Address address;
 
         public Builder id(UUID id) {
             this.id = id;
@@ -110,34 +120,25 @@ public class Person {
             return this;
         }
 
-        public Builder adress(Adress adress) {
-            this.adress = this.adress;
+        public Builder address(Address address) {
+            this.address = this.address;
             return this;
         }
 
         public Person build() {
-            PersonDTO personDTO = new PersonDTO(id, name, cpf, rg, email, adress);
+            PersonDTO personDTO = new PersonDTO(id, name, cpf, rg, email, address);
             Person person = new Person(personDTO);
             return person;
         }
-
-/*
-        public Person build() {
-            Person person = new Person(new PersonDTO(
-                    person.getId(),
-                    person.getName(),
-                    person.getCpf(),
-                    person.getRg(),
-                    person.getEmail(),
-                    person.getAdress()));
-            person.setId(id);
-            person.setName(name);
-            person.setCpf(cpf);
-            person.setRg(rg);
-            person.setEmail(email);
-            person.setAdress(adress);
-            return person;
-        }
-  */
     }
+
+    public void setAddress(List<Address> address) {
+        this.address = address;
+    }
+
+    public List<Address> getAddress() {
+        return address;
+    }
+
+
 }

@@ -7,7 +7,7 @@ create table adress(
     number varchar(50) not null unique,
     complement varchar(500),
     city varchar(100),
-    uf varchar(2)
+    uf varchar(2),
 
     primary key(id)
 

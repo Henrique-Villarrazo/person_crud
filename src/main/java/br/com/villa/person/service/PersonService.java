@@ -1,14 +1,14 @@
 package br.com.villa.person.service;
 
 import br.com.villa.person.dto.PersonDTO;
-import br.com.villa.person.model.Adress;
+import br.com.villa.person.model.Address;
 import br.com.villa.person.model.Person;
 import br.com.villa.person.repository.PersonRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,7 +16,6 @@ public class PersonService {
 
     private final PersonRepository personRepository;
 
-    @Autowired
     public PersonService(PersonRepository personRepository) {
         this.personRepository = personRepository;
     }
@@ -28,7 +27,7 @@ public class PersonService {
                 .cpf(personDTO.cpf())
                 .rg(personDTO.rg())
                 .email(personDTO.email())
-                .adress((Adress) personDTO.adress())
+                .address((Address) personDTO.address())
                 .build();
         return personRepository.save(person);
     }
@@ -54,7 +53,7 @@ public class PersonService {
         person.setCpf(personDTO.cpf());
         person.setRg(personDTO.rg());
         person.setEmail(personDTO.email());
-        person.setAdress((Adress) personDTO.adress());
+        person.setAdress((Address) personDTO.address());
         person  = personRepository.save(person);
         return new Person(person.getId(), person.getName(), person.getCpf(), person.getRg(), person.getEmail(), person.getAdress());
     }
