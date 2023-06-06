@@ -1,17 +1,14 @@
 package br.com.villa.person.dto;
 
-
 import br.com.villa.person.model.Address;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import java.util.List;
+import java.util.UUID;
 
 public record PersonDTO(
-        @JsonProperty
         UUID id,
 
         @NotBlank
@@ -28,5 +25,7 @@ public record PersonDTO(
         @Email
         String email,
 
-        @NotNull
-        Address address)  { }
+        @NotBlank
+        List<Address> address) {
+
+}

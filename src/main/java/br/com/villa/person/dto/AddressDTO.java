@@ -1,14 +1,11 @@
 package br.com.villa.person.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.UUID;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.UUID;
 
 public record AddressDTO(
-        @JsonProperty
+
         UUID id,
         @NotBlank
         String street,

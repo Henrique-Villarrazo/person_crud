@@ -1,17 +1,19 @@
 package br.com.villa.person.controller;
 
-import br.com.villa.person.dto.PersonDTO;
 import br.com.villa.person.model.Address;
 import br.com.villa.person.model.Person;
 import br.com.villa.person.service.PersonService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -28,7 +30,8 @@ import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class PersonControllerTest {
     @Mock
     private PersonService personService;
@@ -47,14 +50,14 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void should_find_all_person() throws Exception {
-        List<Person> personList = new ArrayList<>();
+    public void should_find_all_people() throws Exception {
+        List<Person> peopleList = new ArrayList<>();
 
         Mockito.when(personService.listAllPerson()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/person"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(personList.size()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(peopleList.size()));
     }
 
     @Test
@@ -62,7 +65,7 @@ public class PersonControllerTest {
         UUID id = UUID.randomUUID();
         Person person = new Person(id, "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com", new Address());
 
-        Mockito.when(personService.listPersonById(id)).thenReturn(person);
+        Mockito.when(personService.findPersonById(id)).thenReturn(person);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/person/{id}", id))
                 .andExpect(status().isOk())
