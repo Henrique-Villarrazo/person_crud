@@ -30,14 +30,15 @@ public class Person {
     public Person() {
     }
 
-    public Person(UUID id, String name, String cpf, String rg, String email, List<Address> address) {
+    public Person(UUID id, String name, String cpf, String rg, String email, List<Address> addresses) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.rg = rg;
         this.email = email;
-        this.address = address;
+        this.address = addresses;
     }
+
 
     public Person(PersonDTO personDTO) {
         this.id = personDTO.id();
@@ -138,13 +139,13 @@ public class Person {
             return this;
         }
 
-        public Builder address(List<Address> address) {
-            this.address = address;
+        public Builder address(List<Address> addresses) {
+            this.address = addresses;
             return this;
         }
 
         public Person build() {
-            return new Person(id, name, cpf, rg, email, address);
+            return new Person(id, name, cpf, rg, email, (List<Address>) address);
         }
     }
 }
