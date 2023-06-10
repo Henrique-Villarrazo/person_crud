@@ -1,36 +1,34 @@
 package br.com.villa.person.controller;
 
+import br.com.villa.person.dto.PersonDTO;
 import br.com.villa.person.model.Address;
 import br.com.villa.person.model.Person;
 import br.com.villa.person.service.PersonService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.transaction.Transactional;
+import java.net.URI;
+import java.util.*;
 
-import static net.bytebuddy.matcher.ElementMatchers.is;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
 public class PersonControllerTest {
     @Mock
     private PersonService personService;
@@ -52,92 +50,72 @@ public class PersonControllerTest {
     public void should_find_all_people() throws Exception {
         List<Person> peopleList = new ArrayList<>();
 
-        Mockito.when(personService.listAllPerson()).thenReturn(Collections.emptyList());
+        when(personService.listAllPerson()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/person"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(peopleList.size()));
-    }
-
-//    @Test
-//    public void should_find_by_id() throws Exception {
-//        UUID id = UUID.randomUUID();
-//        Person person = new Person(id, "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com", (Address) new Address());
-//
-//        Mockito.when(personService.getPersonById(id)).thenReturn(person);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.get("/person/{id}", id))
-//                .andExpect(status().isOk())
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(person.getId().toString()))
-//                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(person.getName()));
-//    }
-
-    @Test
-    public void should_create_person() throws Exception {
-        Person person = new Person();
-        person.setName("Henrique villa");
-        person.setCpf("12345678900");
-        person.setRg("123456789");
-        person.setEmail("henrique.villa@example.com");
-
-        Address address = new Address();
-        address.setCity("Caragua");
-        address.setCep("12345");
-        address.setDistrict("Distrito");
-        address.setStreet("Street 1");
-        address.setUf("SP");
-
-        mockMvc.perform((RequestBuilder) post("/api/persons")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.valueOf(objectMapper.writeValueAsString(person))))
-                .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.name", is("Henrique villa")))
-                .andExpect((ResultMatcher)jsonPath("$.cpf", is("12345678900")))
-                .andExpect((ResultMatcher)jsonPath("$.rg", is("123456789")))
-                .andExpect((ResultMatcher)jsonPath("$.email", is("henrique.villa@example.com")))
-                .andExpect((ResultMatcher)jsonPath("$.address.street", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.city", is("Caragua")))
-                .andExpect((ResultMatcher)jsonPath("$.address.cep", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.district", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.street", is("Street 1")))
-                .andExpect((ResultMatcher)jsonPath("$.address.uf", is("SP")));
+                .andExpect(jsonPath("$.length()").value(peopleList.size()));
     }
 
     @Test
-    public void should_update_person() throws Exception {
-        Person person = new Person();
-        person.setName("Henrique villa");
-        person.setCpf("12345678900");
-        person.setRg("123456789");
-        person.setEmail("henrique.villa@example.com");
+    public void should_find_by_id() throws Exception {
+        UUID id = UUID.randomUUID();
+        PersonDTO personDTO = new PersonDTO(id, "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com", Arrays.asList(new Address()));
+        when(personService.getPersonById(id)).thenReturn(personDTO);
 
-        Address address = new Address();
-        address.setCity("Caragua");
-        address.setCep("12345");
-        address.setDistrict("Distrito");
-        address.setStreet("Street 1");
-        address.setUf("SP");
-
-        mockMvc.perform((RequestBuilder) put("/api/persons/{id}", 1)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.valueOf(objectMapper.writeValueAsString(person))))
+        mockMvc.perform(MockMvcRequestBuilders.get("/person/{id}", id))
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) jsonPath("$.name", is("Henrique villa")))
-                .andExpect((ResultMatcher)jsonPath("$.cpf", is("12345678900")))
-                .andExpect((ResultMatcher)jsonPath("$.rg", is("123456789")))
-                .andExpect((ResultMatcher)jsonPath("$.email", is("henrique.villa@example.com")))
-                .andExpect((ResultMatcher)jsonPath("$.address.street", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.city", is("Caragua")))
-                .andExpect((ResultMatcher)jsonPath("$.address.cep", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.district", is("12345")))
-                .andExpect((ResultMatcher)jsonPath("$.address.street", is("Street 1")))
-                .andExpect((ResultMatcher)jsonPath("$.address.uf", is("SP")));
+                .andExpect(jsonPath("$.id").value(personDTO.id().toString()))
+                .andExpect(jsonPath("$.name").value(personDTO.name()));
     }
+    @Test
+    void should_create_person() throws Exception {
+        PersonDTO personDTO = new PersonDTO(
+                UUID.randomUUID(),
+                "Henrique Villa",
+                "12345678900",
+                "123456789",
+                "henrique.villa@example.com",
+                Arrays.asList(new Address()));
+        when(personService.createPerson(any(PersonDTO.class))).thenReturn((Person) status().isCreated());
+
+        var uri = new URI("/person");
+
+        mockMvc.perform(post(uri)
+                        .content(objectMapper.writeValueAsString(personDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+    }
+
+
+
+    @Test
+    void should_update_person() throws Exception {
+        var id = UUID.randomUUID();
+        PersonDTO personDTO = new PersonDTO(
+            id,
+                "Henrique Villa",
+                "12345678900",
+                "123456789",
+                "henrique.villa@example.com",
+                Arrays.asList(new Address()));
+        when(personService.updatePerson(any(UUID.class), any(PersonDTO.class))).thenReturn((Person) status().isOk());
+
+        var uri = new URI("/person/" + id);
+
+        mockMvc.perform(put(uri)
+                        .content(objectMapper.writeValueAsString(personDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
 
     @Test
     public void should_delete_person() throws Exception {
-        mockMvc.perform((RequestBuilder) delete("/api/persons/{id}", 1))
-                .andExpect(status().isOk());
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(delete("/person/{id}", id))
+                .andExpect(status().isNoContent());
     }
 
 }

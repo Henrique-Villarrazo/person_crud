@@ -31,12 +31,11 @@ public class PersonController {
         return personService.listAllPerson();
     }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<PersonDTO> findById(@PathVariable UUID id) {
-//        PersonDTO person = personService.getPersonById(id);
-//        PersonDTO personDTO = mapToDTO(person);
-//        return ResponseEntity.ok(personDTO);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<PersonDTO> findById(@PathVariable UUID id) {
+        PersonDTO personDTO = personService.getPersonById(id);
+        return ResponseEntity.ok(personDTO);
+    }
 
     @PostMapping
     public ResponseEntity<PersonDTO> create(@RequestBody PersonDTO personDTO) {

@@ -77,7 +77,7 @@ public class PersonServiceTest {
 
 
     @Test
-    public void testListAllPerson() {
+    public void testListAllPeople() {
         Person person1 = new Person(UUID.randomUUID(), "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com",
                 Arrays.asList(new Address("Street 1", "District 1", "12345678", "123", "Complement 1", "City 1", "UF 1")));
         Person person2 = new Person(UUID.randomUUID(), "Carlos oliveira", "98765432100", "567894123", "carlos.oliveira@example.com",
