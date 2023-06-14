@@ -9,6 +9,7 @@ create table adress(
     city varchar(100),
     uf varchar(2),
 
-    primary key(id)
+    primary key (id),
+    foreign key (person_id) references person (id)
 
 );

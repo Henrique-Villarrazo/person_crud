@@ -14,6 +14,7 @@ public class Address {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
+
     private UUID id;
     private String street;
     private String district;
