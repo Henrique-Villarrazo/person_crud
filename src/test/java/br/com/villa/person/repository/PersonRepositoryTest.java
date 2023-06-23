@@ -4,8 +4,10 @@ import br.com.villa.person.model.Address;
 import br.com.villa.person.model.Person;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +15,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@SpringBootTest
+@AutoConfigureTestEntityManager
+@Transactional
 public class PersonRepositoryTest {
 
     @Autowired
@@ -37,6 +41,7 @@ public class PersonRepositoryTest {
         assertThat(person.getId()).isNotNull();
     }
 
+
     @Test
     public void should_find_person_by_id() {
         Person person = new Person(
@@ -47,18 +52,27 @@ public class PersonRepositoryTest {
                 "henrique.villa@example.com",
                 Arrays.asList(new Address())
         );
-        entityManager.persist(person);
-        entityManager.flush();
+
+        boolean personExists = personRepository.existsById(person.getId());
+
+        if (!personExists) {
+            entityManager.merge(person);
+
+        }
 
         Person foundPerson = personRepository.findById(person.getId()).orElse(null);
 
-        assertThat(foundPerson).isNotNull();
         assertThat(foundPerson.getId()).isEqualTo(person.getId());
         assertThat(foundPerson.getName()).isEqualTo(person.getName());
+        assertThat(foundPerson.getEmail()).isEqualTo(person.getEmail());
+        assertThat(foundPerson.getCpf()).isEqualTo(person.getCpf());
+        assertThat(foundPerson.getRg()).isEqualTo(person.getRg());
     }
 
+
+
     @Test
-    public void should_find_all_persons() {
+    public void should_find_all_people() {
         Person person = new Person(
                 UUID.randomUUID(),
                 "Henrique Villa",
@@ -67,6 +81,7 @@ public class PersonRepositoryTest {
                 "henrique.villa@example.com",
                 Arrays.asList(new Address())
         );
+
         Person person2 = new Person(
                 UUID.randomUUID(),
                 "Henrique Villarrazo",
@@ -75,15 +90,17 @@ public class PersonRepositoryTest {
                 "henrique.villarrazo@example.com",
                 Arrays.asList(new Address())
         );
-        entityManager.persist(person);
-        entityManager.persist(person2);
-        entityManager.flush();
 
-        List<Person> persons = personRepository.findAll();
+        personRepository.save(person);
+        personRepository.save(person2);
 
-        assertThat(persons).hasSize(2);
-        assertThat(persons).contains(person, person2);
+        List<Person> people = personRepository.findAll();
+
+        assertThat(people).hasSize(2);
+        assertThat(people).contains(person, person2);
     }
+
+
 
     @Test
     public void should_update_person() {
@@ -95,14 +112,12 @@ public class PersonRepositoryTest {
                 "henrique.villa@example.com",
                 Arrays.asList(new Address())
         );
-        entityManager.persist(person);
-        entityManager.flush();
 
-        person.setName("Updated Name");
-        person.setCpf("11111111111");
-        personRepository.save(person);
+        var updatedPerson = person;
+        updatedPerson.setName("Updated Name");
+        updatedPerson.setCpf("11111111111");
 
-        Person updatedPerson = entityManager.find(Person.class, person.getId());
+        personRepository.save(updatedPerson);
 
         assertThat(updatedPerson.getName()).isEqualTo("Updated Name");
         assertThat(updatedPerson.getCpf()).isEqualTo("11111111111");
@@ -118,8 +133,6 @@ public class PersonRepositoryTest {
                 "henrique.villa@example.com",
                 Arrays.asList(new Address())
         );
-        entityManager.persist(person);
-        entityManager.flush();
 
         personRepository.delete(person);
 

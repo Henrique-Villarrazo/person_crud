@@ -68,6 +68,7 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.id").value(personDTO.id().toString()))
                 .andExpect(jsonPath("$.name").value(personDTO.name()));
     }
+
     @Test
     void should_create_person() throws Exception {
         PersonDTO personDTO = new PersonDTO(
@@ -76,8 +77,11 @@ public class PersonControllerTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                Arrays.asList(new Address()));
-        when(personService.createPerson(any(PersonDTO.class))).thenReturn((Person) status().isCreated());
+                new ArrayList<>());
+        Person person = new Person();
+        person.setAddress(new ArrayList<>());
+
+        when(personService.createPerson(any(PersonDTO.class))).thenReturn(person);
 
         var uri = new URI("/person");
 
@@ -99,7 +103,10 @@ public class PersonControllerTest {
                 "123456789",
                 "henrique.villa@example.com",
                 Arrays.asList(new Address()));
-        when(personService.updatePerson(any(UUID.class), any(PersonDTO.class))).thenReturn((Person) status().isOk());
+        Person person = new Person();
+        person.setAddress(new ArrayList<>());
+
+        when(personService.updatePerson(any(UUID.class), any(PersonDTO.class))).thenReturn(person);
 
         var uri = new URI("/person/" + id);
 
