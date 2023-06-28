@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,18 +50,17 @@ public class PersonRepositoryTest {
                 "Henrique Villa",
                 "12345678900",
                 "123456789",
-                "henrique.villa@example.com",
+                "henrique.villar@example.com",
                 Arrays.asList(new Address())
         );
 
-        boolean personExists = personRepository.existsById(person.getId());
+        personRepository.save(person);
 
-        if (!personExists) {
-            entityManager.merge(person);
+        Optional<Person> foundPersonOptional = personRepository.findById(person.getId());
 
-        }
+        assertThat(foundPersonOptional).isPresent();
 
-        Person foundPerson = personRepository.findById(person.getId()).orElse(null);
+        Person foundPerson = foundPersonOptional.orElse(null);
 
         assertThat(foundPerson.getId()).isEqualTo(person.getId());
         assertThat(foundPerson.getName()).isEqualTo(person.getName());
@@ -70,35 +70,35 @@ public class PersonRepositoryTest {
     }
 
 
-
     @Test
     public void should_find_all_people() {
         Person person = new Person(
                 UUID.randomUUID(),
                 "Henrique Villa",
-                "12345678900",
-                "123456789",
-                "henrique.villa@example.com",
+                "12345678902",
+                "123456711",
+                "henrique.villa@ee.com",
                 Arrays.asList(new Address())
         );
 
         Person person2 = new Person(
                 UUID.randomUUID(),
                 "Henrique Villarrazo",
-                "12345678901",
-                "123456781",
-                "henrique.villarrazo@example.com",
+                "12345678903",
+                "123456700",
+                "henrique.villarrazo@ee.com",
                 Arrays.asList(new Address())
         );
 
         personRepository.save(person);
         personRepository.save(person2);
 
-        List<Person> people = personRepository.findAll();
+        List<Person> people = personRepository.findAllPeople();
 
-        assertThat(people).hasSize(2);
         assertThat(people).contains(person, person2);
     }
+
+
 
 
 

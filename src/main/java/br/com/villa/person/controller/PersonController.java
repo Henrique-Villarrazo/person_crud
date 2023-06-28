@@ -18,7 +18,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/person")
 public class PersonController {
-
     private final PersonService personService;
 
     @Autowired
@@ -105,4 +104,5 @@ public class PersonController {
                 person.getAddress()
         );
     }
+
 }
