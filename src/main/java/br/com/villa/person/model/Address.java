@@ -1,5 +1,6 @@
 package br.com.villa.person.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -14,7 +15,6 @@ public class Address {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-
     private UUID id;
     private String street;
     private String district;
@@ -24,14 +24,15 @@ public class Address {
     private String city;
     private String uf;
 
-    @ManyToOne
-    @JoinColumn(name = "person_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id", nullable = false)
+    @JsonBackReference
     private Person person;
 
     public Address() {
     }
 
-    public Address(String street, String district, String cep, String number, String complement, String city, String uf) {
+    public Address(String street, String district, String cep, String number, String complement, String city, String uf, Person person) {
         this.street = street;
         this.district = district;
         this.cep = cep;
@@ -39,6 +40,7 @@ public class Address {
         this.complement = complement;
         this.city = city;
         this.uf = uf;
+        this.person = person;
     }
 
     public UUID getId() {

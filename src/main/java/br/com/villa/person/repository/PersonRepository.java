@@ -11,9 +11,8 @@ import java.util.UUID;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, UUID> {
-    Optional<Person> findById(UUID id);
 
-    boolean existsByEmail(String email);
+    Optional<Person> findById(UUID uuid);
 
     @Query("SELECT p FROM Person p")
     List<Person> findAllPeople();

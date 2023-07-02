@@ -1,5 +1,7 @@
 package br.com.villa.person.dto;
 
+import br.com.villa.person.model.Person;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.UUID;
@@ -19,5 +21,6 @@ public record AddressDTO(
         String uf,
         String complement,
         @NotBlank
-        String number) {
+        String number,
+        Person person) {
 }

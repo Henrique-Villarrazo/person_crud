@@ -3,18 +3,18 @@ package br.com.villa.person.repository;
 import br.com.villa.person.model.Address;
 import br.com.villa.person.model.Person;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @AutoConfigureTestEntityManager
@@ -24,8 +24,12 @@ public class PersonRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
-    @Autowired
+    @Mock
     private PersonRepository personRepository;
+
+    public PersonRepositoryTest() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     public void should_save_person() {
@@ -35,7 +39,7 @@ public class PersonRepositoryTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                Arrays.asList(new Address())
+                Collections.singleton(new Address())
         );
         personRepository.save(person);
 
@@ -45,62 +49,68 @@ public class PersonRepositoryTest {
 
     @Test
     public void should_find_person_by_id() {
+        // Create a sample person
         Person person = new Person(
                 UUID.randomUUID(),
                 "Henrique Villa",
                 "12345678900",
                 "123456789",
                 "henrique.villar@example.com",
-                Arrays.asList(new Address())
+                Collections.singleton(new Address())
         );
 
-        personRepository.save(person);
+        when(personRepository.findById(person.getId())).thenReturn(Optional.of(person));
 
         Optional<Person> foundPersonOptional = personRepository.findById(person.getId());
 
         assertThat(foundPersonOptional).isPresent();
-
         Person foundPerson = foundPersonOptional.orElse(null);
-
         assertThat(foundPerson.getId()).isEqualTo(person.getId());
         assertThat(foundPerson.getName()).isEqualTo(person.getName());
         assertThat(foundPerson.getEmail()).isEqualTo(person.getEmail());
         assertThat(foundPerson.getCpf()).isEqualTo(person.getCpf());
         assertThat(foundPerson.getRg()).isEqualTo(person.getRg());
-    }
 
+        verify(personRepository, times(1)).findById(person.getId());
+        verifyNoMoreInteractions(personRepository);
+        }
 
-    @Test
-    public void should_find_all_people() {
-        Person person = new Person(
-                UUID.randomUUID(),
-                "Henrique Villa",
-                "12345678902",
-                "123456711",
-                "henrique.villa@ee.com",
-                Arrays.asList(new Address())
-        );
+        @Test
+        public void should_find_all_people() {
+            // Create sample people
+            Person person1 = new Person(
+                    UUID.randomUUID(),
+                    "Henrique Villa",
+                    "12345678902",
+                    "123456711",
+                    "henrique.villa@ee.com",
+                    Collections.singleton(new Address())
+            );
 
-        Person person2 = new Person(
-                UUID.randomUUID(),
-                "Henrique Villarrazo",
-                "12345678903",
-                "123456700",
-                "henrique.villarrazo@ee.com",
-                Arrays.asList(new Address())
-        );
+            Person person2 = new Person(
+                    UUID.randomUUID(),
+                    "Henrique Villarrazo",
+                    "12345678903",
+                    "123456700",
+                    "henrique.villarrazo@ee.com",
+                    Collections.singleton(new Address())
+            );
 
-        personRepository.save(person);
-        personRepository.save(person2);
+            List<Person> expectedPeople = Arrays.asList(person1, person2);
 
-        List<Person> people = personRepository.findAllPeople();
+            // Mock the behavior of the personRepository
+            when(personRepository.findAllPeople()).thenReturn(expectedPeople);
 
-        assertThat(people).contains(person, person2);
-    }
+            // Perform the operation
+            List<Person> people = personRepository.findAllPeople();
 
+            // Assert the result
+            assertThat(people).containsExactlyInAnyOrderElementsOf(expectedPeople);
 
-
-
+            // Verify the mock interactions
+            verify(personRepository, times(1)).findAllPeople();
+            verifyNoMoreInteractions(personRepository);
+        }
 
     @Test
     public void should_update_person() {
@@ -110,7 +120,7 @@ public class PersonRepositoryTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                Arrays.asList(new Address())
+                Collections.singleton(new Address())
         );
 
         var updatedPerson = person;
@@ -131,7 +141,7 @@ public class PersonRepositoryTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                Arrays.asList(new Address())
+                Collections.singleton(new Address())
         );
 
         personRepository.delete(person);

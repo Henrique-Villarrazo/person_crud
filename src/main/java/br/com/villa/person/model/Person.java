@@ -1,11 +1,12 @@
 package br.com.villa.person.model;
 
 import br.com.villa.person.dto.PersonDTO;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -19,18 +20,23 @@ public class Person {
     )
     private UUID id;
 
+    @Column
     private String name;
+    @Column(unique = true)
     private String cpf;
+    @Column(unique = true)
     private String rg;
+    @Column(unique = true)
     private String email;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL)
-    private List<Address> address;
+    @JsonManagedReference
+    private Set<Address> address;
 
     public Person() {
     }
 
-    public Person(UUID id, String name, String cpf, String rg, String email, List<Address> addresses) {
+    public Person(UUID id, String name, String cpf, String rg, String email, Set<Address> addresses) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
@@ -39,6 +45,9 @@ public class Person {
         this.address = addresses;
     }
 
+    public Person(UUID id) {
+        this.id = id;
+    }
 
     public Person(PersonDTO personDTO) {
         this.id = personDTO.id();
@@ -48,10 +57,16 @@ public class Person {
         this.email = personDTO.email();
 
 
-        List<Address> addresses = new ArrayList<>();
-        for (Address addressDTO : personDTO.address()) {
-            Address address = new Address(addressDTO.getStreet(), addressDTO.getCity(), addressDTO.getCep(), addressDTO.getNumber(), addressDTO.getComplement(),
-                    addressDTO.getDistrict(), addressDTO.getUf());
+        Set<Address> addresses = new HashSet<>();
+        for (Address address : personDTO.address()) {
+            address = new Address(address.getStreet(),
+                    address.getCity(),
+                    address.getComplement(),
+                    address.getNumber(),
+                    address.getComplement(),
+                    address.getDistrict(),
+                    address.getUf(),
+                    address.getPerson());
             addresses.add(address);
         }
         this.address = addresses;
@@ -98,11 +113,11 @@ public class Person {
         this.email = email;
     }
 
-    public List<Address> getAddress() {
+    public Set<Address> getAddress() {
         return address;
     }
 
-    public void setAddress(List<Address> address) {
+    public void setAddress(Set<Address> address) {
         this.address = address;
     }
 
@@ -112,7 +127,7 @@ public class Person {
         private String cpf;
         private String rg;
         private String email;
-        private List<Address> address;
+        private Set<Address> address;
 
         public Builder id(UUID id) {
             this.id = id;
@@ -139,13 +154,14 @@ public class Person {
             return this;
         }
 
-        public Builder address(List<Address> addresses) {
-            this.address = addresses;
+        public Builder address(Set<Address> address) {
+            this.address = address;
             return this;
         }
 
         public Person build() {
-            return new Person(id, name, cpf, rg, email, (List<Address>) address);
+            return new Person(id, name, cpf, rg, email, address);
         }
     }
+
 }

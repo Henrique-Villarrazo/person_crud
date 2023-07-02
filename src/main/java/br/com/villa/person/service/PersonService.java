@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class PersonService {
     }
 
     public Person createPerson(PersonDTO personDTO) {
-        List<Address> addresses = personDTO.address().stream()
+         Set<Address> addresses =  personDTO.address().stream()
                 .map(addressDTO -> new Address(
                         addressDTO.getStreet(),
                         addressDTO.getDistrict(),
@@ -29,8 +30,8 @@ public class PersonService {
                         addressDTO.getNumber(),
                         addressDTO.getComplement(),
                         addressDTO.getCity(),
-                        addressDTO.getUf()))
-                .collect(Collectors.toList());
+                        addressDTO.getUf(),
+                        addressDTO.getPerson())).collect(Collectors.toSet());
 
         Person person = new Person.Builder()
                 .id(personDTO.id())
@@ -38,11 +39,20 @@ public class PersonService {
                 .cpf(personDTO.cpf())
                 .rg(personDTO.rg())
                 .email(personDTO.email())
-                .address(addresses)
+                .address(personDTO.address())
                 .build();
 
-        return personRepository.save(person);
+        Person savedPerson = personRepository.save(person);
+
+        for (Address address : savedPerson.getAddress()) {
+            address.setPerson(savedPerson);
+        }
+
+        personRepository.save(savedPerson);
+
+        return savedPerson;
     }
+
 
     public Person updatePerson(UUID id, PersonDTO personDTO) {
         Person person = personRepository.findById(id)
@@ -53,16 +63,17 @@ public class PersonService {
         person.setRg(personDTO.rg());
         person.setEmail(personDTO.email());
 
-        List<Address> addresses = personDTO.address().stream()
+        Set<Address> addresses = personDTO.address().stream()
                 .map(addressDTO -> new Address(
                         addressDTO.getStreet(),
-                        addressDTO.getDistrict(),
+                        addressDTO.getCity(),
                         addressDTO.getCep(),
                         addressDTO.getNumber(),
                         addressDTO.getComplement(),
-                        addressDTO.getCity(),
-                        addressDTO.getUf()))
-                .collect(Collectors.toList());
+                        addressDTO.getDistrict(),
+                        addressDTO.getUf(),
+                        addressDTO.getPerson()))
+                .collect(Collectors.toSet());
 
         person.setAddress(addresses);
 
@@ -70,21 +81,21 @@ public class PersonService {
     }
 
 
-    public List<PersonDTO> listAllPerson() {
+    public Set<PersonDTO> listAllPeople() {
         List<Person> people = personRepository.findAll();
-        return people.stream()
+        return  people.stream()
                 .map(person -> new PersonDTO(
                         person.getId(),
                         person.getName(),
                         person.getCpf(),
                         person.getRg(),
                         person.getEmail(),
-                        mapAddressList(person.getAddress())))
-                .collect(Collectors.toList());
+                        mapAddressSet(person.getAddress())))
+                .collect(Collectors.toSet());
     }
 
-    private List<Address> mapAddressList(List<Address> addresses) {
-        return addresses.stream()
+    private Set<Address> mapAddressSet(Set<Address> addresses) {
+        return  addresses.stream()
                 .map(address -> new Address(
                         address.getStreet(),
                         address.getDistrict(),
@@ -92,8 +103,9 @@ public class PersonService {
                         address.getNumber(),
                         address.getComplement(),
                         address.getCity(),
-                        address.getUf()))
-                .collect(Collectors.toList());
+                        address.getUf(),
+                        address.getPerson()))
+                .collect(Collectors.toSet());
     }
 
 
@@ -101,18 +113,19 @@ public class PersonService {
         Person person = personRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Pessoa não encontrada com id " + id));
 
-        List<Address> addressDTOs = mapAddressList(person.getAddress());
+        Set<Address> addressDTOs = mapAddressSet(person.getAddress());
 
-        List<Address> addresses = addressDTOs.stream()
+        Set<Address> addresses =  addressDTOs.stream()
                 .map(addressDTO -> new Address(
                         addressDTO.getStreet(),
-                        addressDTO.getCity(),
+                        addressDTO.getDistrict(),
                         addressDTO.getCep(),
                         addressDTO.getNumber(),
                         addressDTO.getComplement(),
-                        addressDTO.getDistrict(),
-                        addressDTO.getUf()))
-                .collect(Collectors.toList());
+                        addressDTO.getCity(),
+                        addressDTO.getUf(),
+                        addressDTO.getPerson()))
+                .collect(Collectors.toSet());
 
         return new PersonDTO(
                 person.getId(),

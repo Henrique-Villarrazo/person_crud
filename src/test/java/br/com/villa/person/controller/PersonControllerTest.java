@@ -48,19 +48,19 @@ public class PersonControllerTest {
 
     @Test
     public void should_find_all_people() throws Exception {
-        List<Person> peopleList = new ArrayList<>();
+        Set<Person> peopleSet = new HashSet<>();
 
-        when(personService.listAllPerson()).thenReturn(Collections.emptyList());
+        when(personService.listAllPeople()).thenReturn(Collections.emptySet());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/person"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(peopleList.size()));
+                .andExpect(jsonPath("$.length()").value(peopleSet.size()));
     }
 
     @Test
     public void should_find_by_id() throws Exception {
         UUID id = UUID.randomUUID();
-        PersonDTO personDTO = new PersonDTO(id, "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com", Arrays.asList(new Address()));
+        PersonDTO personDTO = new PersonDTO(id, "Henrique villa", "12345678900", "123456789", "henrique.villa@example.com", Collections.singleton(new Address()));
         when(personService.getPersonById(id)).thenReturn(personDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/person/{id}", id))
@@ -77,9 +77,9 @@ public class PersonControllerTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                new ArrayList<>());
+                new HashSet<>());
         Person person = new Person();
-        person.setAddress(new ArrayList<>());
+        person.setAddress(Collections.singleton(new Address()));
 
         when(personService.createPerson(any(PersonDTO.class))).thenReturn(person);
 
@@ -102,9 +102,9 @@ public class PersonControllerTest {
                 "12345678900",
                 "123456789",
                 "henrique.villa@example.com",
-                Arrays.asList(new Address()));
+                Collections.singleton( new Address()));
         Person person = new Person();
-        person.setAddress(new ArrayList<>());
+        person.setAddress(Collections.singleton (new Address()));
 
         when(personService.updatePerson(any(UUID.class), any(PersonDTO.class))).thenReturn(person);
 

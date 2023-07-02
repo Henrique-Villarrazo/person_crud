@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/person")
@@ -26,8 +24,8 @@ public class PersonController {
     }
 
     @GetMapping
-    public List<PersonDTO> findAllPeople() {
-        return personService.listAllPerson();
+    public Set<PersonDTO> findAllPeople() {
+        return personService.listAllPeople();
     }
 
     @GetMapping("/{id}")
@@ -69,12 +67,13 @@ public class PersonController {
                 address.getCity(),
                 address.getUf(),
                 address.getComplement(),
-                address.getNumber()
+                address.getNumber(),
+                address.getPerson()
         );
     }
 
-    private List<AddressDTO> convertToAddressDTOList(List<Address> addresses) {
-        List<AddressDTO> addressDTOs = new ArrayList<>();
+    private Set<AddressDTO> convertToAddressDTOSet(Set<Address> addresses) {
+        Set<AddressDTO> addressDTOs = new HashSet<AddressDTO>();
 
         for (Address address : addresses) {
             AddressDTO addressDTO = new AddressDTO(
@@ -85,7 +84,8 @@ public class PersonController {
                     address.getCity(),
                     address.getUf(),
                     address.getComplement(),
-                    address.getNumber()
+                    address.getNumber(),
+                    address.getPerson()
             );
             addressDTOs.add(addressDTO);
         }
@@ -94,15 +94,15 @@ public class PersonController {
     }
 
     private PersonDTO mapToDTO(Person person) {
-        List<AddressDTO> addressDTOs = convertToAddressDTOList(person.getAddress());
+        Set<Address> addresses = new HashSet<>(person.getAddress());
+
         return new PersonDTO(
                 person.getId(),
                 person.getName(),
                 person.getCpf(),
                 person.getRg(),
                 person.getEmail(),
-                person.getAddress()
+                addresses
         );
     }
-
 }

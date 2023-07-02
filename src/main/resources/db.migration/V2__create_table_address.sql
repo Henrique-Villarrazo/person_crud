@@ -1,9 +1,9 @@
 create table address(
     id uuid not null,
     street varchar(100) not null,
-    district varchar(100) not null unique,
-    cep varchar(8) not null unique,
-    number varchar(50) not null unique,
+    district varchar(100) not null,
+    cep varchar(8) not null,
+    number varchar(50) not null,
     complement varchar(500),
     city varchar(100),
     uf varchar(2),
