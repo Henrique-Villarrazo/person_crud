@@ -97,17 +97,12 @@ public class PersonRepositoryTest {
             );
 
             List<Person> expectedPeople = Arrays.asList(person1, person2);
-
-            // Mock the behavior of the personRepository
             when(personRepository.findAllPeople()).thenReturn(expectedPeople);
 
-            // Perform the operation
             List<Person> people = personRepository.findAllPeople();
 
-            // Assert the result
             assertThat(people).containsExactlyInAnyOrderElementsOf(expectedPeople);
 
-            // Verify the mock interactions
             verify(personRepository, times(1)).findAllPeople();
             verifyNoMoreInteractions(personRepository);
         }
